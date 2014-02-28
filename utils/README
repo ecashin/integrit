@@ -1,0 +1,7 @@
+These are extra utilities that are helpful to advanced users but are
+not necessary for using integrit.
+
+This directory used to be called "aux", but that name was changed to
+"utils" to accomodate Windows' DOS-based limitations that persist even
+in Windows 2000: you can't make a file or directory called "aux",
+"prn", or "nul" in Windows.

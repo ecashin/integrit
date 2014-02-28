@@ -1,0 +1,7 @@
+-----------------------------------------------------------------
+Fri Dec 28 15:22:43 EST 2001
+
+took error handling out of library and moved to error-signalling via
+returned values.
+
+updated configuration process to search for system dictionary

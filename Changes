@@ -1,0 +1,507 @@
+-----------------------------------------------------------------
+Sun May 20 23:05:40 CEST 2007
+
+As of today, this file is obsoleted by ChangeLog (generated
+automatically from the SCM software) and NEWS (summarized changes
+between releases). Username mappings are stored in AUTHORS.
+
+-----------------------------------------------------------------
+Fri Apr 7 10:43:06 CEST 2006
+
+Updating output format for "new" file checksums to match "removed".
+
+-----------------------------------------------------------------
+Mon Oct 10 18:31:07 CEST 2005
+
+Merged "digest" changes, switched to RipeMD160.
+Bumped release to 4.0.
+
+WARNING: 4.0 breaks db compatibility: both the current-state
+         checksums shown in the report and the file checksums
+         themselves are now in RipeMD160. README for details.
+
+-----------------------------------------------------------------
+Thu Oct 6 12:38:59 CEST 2005
+
+Merged "stop_on_err" changes, doc fixes, cosmetic fixes.
+Bumping release to 3.06 (interim release).
+
+-----------------------------------------------------------------
+Tue Sep 13 22:42:07 EST 2005
+
+Update Makefile distready target to run autoconf, and include a record
+of Chris Johns' changes below.
+
+Update Makefile distclean target to remove autom4te.cache directory.
+
+Updating version number to 3.05.
+
+-----------------------------------------------------------------
+Mon Sep 12 19:35:16 EST 2005
+
+Applied patches from Yuri D'Elia:
+
+  - configure.in: Added some checks whether -static (or other flags)
+  can be used. Under at least OSX (and possibly open darwin) -static
+  cannot be used. This patch fix the build on those systems.
+  - elcwft.c: reorganized the walk loop. Ignored directories are now
+  _really_ ignored (that is, no more "cannot open directory").
+  - gnupg/md5.c: fixed broken macro for big endian systems under
+  certain compilers.
+  - other fixes: Assume checksums to be unsigned char as required by
+  gnupg/* (eliminates a dozen of warnings).
+
+(See integrit-devel archives for original patch.)
+
+Updating version number to 3.04.
+
+-----------------------------------------------------------------
+Wed Mar 23 19:53:41 EST 2005
+
+Patches from Chris Johns:
+
+Remove the "filetype" change type, and replace it with a new "type"
+inode change. So now integrit keeps the S_IFMT mode bits, in the same
+way to the permission bits from the file mode, and hence any change to
+file type gets flagged in the "stat" change type.
+
+Add a new "devicetype" element in the "stat" change type, to detect when
+a character or block special file changes major/minor number.
+
+Finally, treat symbolic links similarly to regular files, in that integrit
+computes an SHA-1 checksum for them, but not for the file contents, but
+rather for the name in the symlink (using readlink()). Then, if a file
+remains a symlink, but points to a different target, that's flagged as an
+"SHA-1" change to the file.
+
+Note that the database itself is not affected by this change, since it
+contains a 'struct stat' and an SHA-1 checksum string already. The code
+simply uses the existing database contents differently now.
+
+-----------------------------------------------------------------
+Mon Oct 21 21:20:32 EDT 2002
+
+Moved stdint.h.in installation below sizeof tests in configure.in.
+Together with the removal of the aux directory from the CVS repository
+on sourceforge, this change makes compilation on Windows smooth.
+
+Updating minor version number to 3.03.
+
+-----------------------------------------------------------------
+Wed Oct  2 20:19:01 EDT 2002
+
+Added example of C program to run integrit on multiple config files:
+examples/integrit-run.c 
+
+-----------------------------------------------------------------
+Sat Sep 28 10:18:03 EDT 2002
+
+doc/Makefile.in had bang right after if, which Michael Schloh von
+Bennewitz <michael@schloh.com> says was a probm on Solaris' bourne
+shell.  Now it uses $? instead.
+
+-----------------------------------------------------------------
+Sat Sep  7 15:50:37 EDT 2002
+
+Using new autoconf large file support feature to turn on large file
+support by default.
+
+Corrected minor bug in output: "p(755:sym) " was reported as
+"p(755:sym", resulting in odd looking human-readable report lines when
+something changed to a symlink.
+
+Updating minor version number to 3.02.
+
+-----------------------------------------------------------------
+Mon Jul 15 19:46:06 EDT 2002
+
+Modifying doc installation process to acommodate debian (by not
+running install-info on debian.)
+
+-----------------------------------------------------------------
+Sat Jul 13 18:31:06 EDT 2002
+
+Made i-ls accept multiple filenames and a usage option (-h).  Made
+i-ls show SHA-1 checksums by default.  
+
+Made i-viewdb show SHA-1 checksums by default.
+
+Updating version number to 3.01.
+
+Altering configure.in to accept empty values for some user-tunable
+variables like CFLAGS.
+
+-----------------------------------------------------------------
+Thu May 16 00:05:42 EDT 2002
+
+Made sure ar and ranlib were configure variables in Makefiles.
+hashtbl's Makefile had hardcoded ar.
+
+Included time.h in eachfile.c to avoid warning on debian woody. 
+
+-----------------------------------------------------------------
+Sat Jan  5 11:29:38 EST 2002
+
+adding support for building integrit in a directory other than the
+source directory.
+
+-----------------------------------------------------------------
+Fri Dec 28 14:08:12 EST 2001
+
+removing sync from build after getting confirmation from
+comp.unix.programmer that it's not a good idea to sync after
+building. 
+
+switching from options data type to a more general integrit_t data
+type, which will carry program state, specifically exit status info.
+
+now that dep.mak generation is done at distribution time instead of
+build time, the split makefiles are no longer necessary.  the foo.mak
+makefiles have been merged into the Makefile's.
+
+changing to cmp-style exit status: 0 for no change; 1 for changes
+detected; 2 for error.
+
+-----------------------------------------------------------------
+Sun Dec 23 13:03:05 EST 2001
+
+moving dep.mak generation from build time to release time.
+
+"make clean" now cleans in utils and hashtbl too.
+
+changing "-I foo" to "-Ifoo" and "-L foo" to "-Lfoo" for compatibility
+with weird platforms.
+
+-----------------------------------------------------------------
+Tue Dec 11 21:40:28 EST 2001
+
+made changes based on patch from David Doubrava to help with HP-UX and
+SCO compatibility.
+
+-----------------------------------------------------------------
+Mon Dec 10 22:05:36 EST 2001
+
+added ".info" extension to the info file on Jos Backus' suggestion. 
+
+-----------------------------------------------------------------
+Mon Oct 22 00:24:32 EST 2001
+
+changed the "aux" directory to "utils" as an accomodation to the
+DOS-isms that persist even in Windows 2000.
+
+changed the "utilities" files to the more descriptive name,
+"hexprint".
+
+added a AC_CHECK_HEADERS(stdint.h inttypes.h) in addition to the
+individual AC_CHECK_HEADER checks for those headers in configure.in.
+This change makes the stdint.h and inttypes.h information make its way
+into the config.h file more consistently.
+
+-----------------------------------------------------------------
+Sun Oct 14 16:44:37 EDT 2001
+
+added a test suite and bug-report generator in the new "test"
+directory.
+
+added a new make target, "make test".  
+
+These facilities are not yet documented, but should help in
+collaborative debugging.
+
+Raised version number to 2.04.
+
+-----------------------------------------------------------------
+Mon Oct  1 18:24:50 EDT 2001
+
+got rid of a hard-coded path to test in hashtbl/configure.  I had to
+manually remove the configure script before autoreconf would
+regenerate it.
+
+made configure substitute the compiler into the base and hashtbl
+makefiles.
+
+got rid of old aux/configure script.
+
+-----------------------------------------------------------------
+Tue Sep 11 19:33:56 EDT 2001
+
+install-info isn't guaranteed to work on "make install", e.g., it
+might not be in the $PATH.  Now instead of halting the build, the
+doc/Makefile generates a warning when it can't do install-info.
+
+Also a note about the issue was added to INSTALL.
+
+-----------------------------------------------------------------
+Mon Sep 10 18:44:00 EDT 2001
+
+Robert Weber, Siemens Business Services, eMail:
+Robert.Weber@mch.sbs.de reported a bug in eachfile.c, where integrit
+was ingnoring read errors and, worse, passing -1 to sha_write.  The
+bug was obscure because the read usually worked, but integrit was
+dumping core on RW's Solaris 7 system.
+
+Thanks Robert Weber!  This bug has been fixed.
+
+Added FAQ to documentation and updated texinfo docs in general.
+
+Raised version number to 2.03.
+
+Made changes to documentation and to root.conf based on suggestions by
+matt <matt@cipherdesign.com>.  The changes make integrit's file tree
+walking easier to understand.
+
+-----------------------------------------------------------------
+Mon Jul 30 22:16:51 EDT 2001
+
+Making elcwft more flexible by way of a "context" type.  
+
+Tried letting integrit skip over directories it can't open instead of
+treating it as fatal.  This causes complications of an optimization
+where integrit only stores checksums for files it can read.  During a
+check run integrit assumes a file wasn't a regular file at the time of
+the update if it doesn't have a checksum in the database.  
+
+This wouldn't be such a great feature anyway because integrit should
+be running as root looking at system files or configured to skip
+directories the user can't see.
+
+KISS!
+
+-----------------------------------------------------------------
+Thu Jul 26 00:17:17 EDT 2001
+
+Adding texinfo documentation as the beginning of a transition away
+from roff docs to texinfo.
+
+Took out funky test-program-finding shenanigans in configure process.
+
+Raised version number to 2.02
+
+-----------------------------------------------------------------
+Wed Jul  4 18:54:00 EDT 2001
+
+Changed hashtbl to config.h-based configuration.
+
+Updated version number to 2.01.
+
+Got rid of the unused packint.c file.
+
+-----------------------------------------------------------------
+Mon Jul  2 21:52:37 EDT 2001
+
+Make clean targets should clean up better after Andras Bali pointed
+out some missed files.
+
+The configure process now looks for the test program so that the
+configure script will work properly on Solaris, where "test -r
+filename" fails incorrectly sometimes.
+
+Included a stdint.h.in file that can replace stdint.h on non-C99-
+conforming platforms that lack a stdint.h or inttypes.h system header.
+
+-----------------------------------------------------------------
+Mon Jun 18 18:39:01 EDT 2001
+
+Added feature: you can change the maximum file size that will be
+mmap'ed with a configure option.  Specifying a maximum of zero means
+that mmap won't be used.  You can conserve virtual memory this way.
+
+Added feature: non-inherited checksets.
+
+-----------------------------------------------------------------
+Sun Jun 17 17:40:43 EDT 2001
+
+Using stdio's fwrite for buffered output in cdb_make stuff.
+
+-----------------------------------------------------------------
+Sat Jun 16 13:57:16 EDT 2001
+
+Added feature: build process now includes more sophisticated
+dependency juggling.  
+
+This is most noticed with headers, e.g., after building everything, if
+you change cdb_seq.h and run "make aux", then the files depending on
+that header will be rebuilt: missing.o; cdb_seq.o; viewdb.o; and
+viewdb.  :)
+
+Some unneeded complexity has been removed from the build process: aux
+no longer has its own configure script.
+
+The object files that are shared between integrit itself and the
+auxiliary programs is now in a library, "libintegrit.a".
+
+Added configure option for specifying install script to use if
+autoconf finds one that doesn't really work (e.g., Stata's "install"
+program was in my path once).  Updated hashtbl's "make install"
+stuff to use install.
+
+Added feature: now known and current databases can be specified on the
+command line, overriding the settings in the configuration file.  This
+feature is for sysadmins who want to use the same configuration file
+on many similar hosts.
+
+-----------------------------------------------------------------
+Fri Jun 15 20:38:18 EDT 2001
+
+The hashtbl library has two related new features: a "foreach" feature,
+where a callback can be executed on each element in the hash table,
+and an optional "destroy item" callback.
+
+The callback for destroying items allows the caller to store complex
+data structures in the hash table and then pass a pointer to a
+specialized cleanup routine to hashtbl_free.
+
+Auxiliary tools now build properly with leak detection turned on.
+
+-----------------------------------------------------------------
+Thu Jun 14 13:45:58 EDT 2001
+
+Big changes: removed cdb-0.75 from integrit.  integrit now uses its
+own cdb routines and some modified versions of DJB's public domain
+sources.
+
+integrit's use of openssl has been removed.  integrit now uses md5 and
+sha1 checksums adapted from those of gnupg-1.0.6.
+
+Memory-leak finding support has been added to the auxiliary tools. 
+
+Miscellaneous cleaning up.
+
+Changing major version number to two.
+
+New feature: using -q and -v flags to change verbosity level does
+something now: lowering the level with "-q" eliminates the preamble in
+the human-readable report.
+
+-----------------------------------------------------------------
+Wed Feb 21 22:43:59 EST 2001
+
+Eliminated race condition pointed out by lumpy@9mm.com: file could
+change from regular file to non-regular file between lstat and open. 
+
+Made file tree walker more robust in that it silently ignores files
+that disappear between the readdir call and the lstat call.
+
+-----------------------------------------------------------------
+Mon Feb 19 12:59:18 EST 2001
+
+Split file stat & checksum info for missing files onto two lines, to
+be consistent with the rest of the output and to make the output more
+readable (less wide).
+
+-----------------------------------------------------------------
+Sun Feb 18 13:15:59 EST 2001
+
+Big bugfix: byte order issues were making cdb_seq routines fail on big
+endian architectures (Sparc was the one tested).  By using cdb's
+uint32_unpack when reading in numbers from the cdb file, the
+byte-order works out correctly.
+
+-----------------------------------------------------------------
+Sun Feb 18 03:22:14 EST 2001
+
+Adding file stat and checksum information for missing files to
+human-readable output.
+
+-----------------------------------------------------------------
+Sun Feb 18 01:55:48 EST 2001
+
+Making short reads in cdb_seq_get and cdb_seq_getkey an error.
+
+-----------------------------------------------------------------
+Sun Feb 18 01:13:32 EST 2001
+
+Reporting permissions of symlinks as "sym" instead of "777".
+
+-----------------------------------------------------------------
+Tue Feb 13 00:42:18 EST 2001
+
+adding rpm support.  Gyepi SAM <gyepi@peanutpress.com> is the rpm
+packager.
+
+-----------------------------------------------------------------
+Wed Feb  7 22:59:10 EST 2001
+
+incrementing minor version number.  Now it's v.1.06.
+
+when reporting new files, information about the new files is
+included. 
+
+-----------------------------------------------------------------
+Sat Jan 20 12:28:43 EST 2001
+
+changing conditionally compiled stuff from platform-oriented to more
+specific, feature-oriented criteria, capitalizing on
+autoconf-generated info.
+
+e.g., prefer "#if HAVE_STDINT_H" 
+  to "#if ! defined(__FreeBSD__) && ! defined(__sun)".
+
+-----------------------------------------------------------------
+Wed Jan 17 21:28:40 EST 2001
+
+releasing 1.05.02-beta
+
+With the help of Jos Backus, improving the portability of integrit to
+the Solaris platform.
+
+Release files are now signed with my public key.
+
+-----------------------------------------------------------------
+Fri Jan 12 19:45:30 EST 2001
+
+In anticipation of a stable release, binaries are stripped on
+installation when the package is configured without the --enable-debug
+option. 
+
+Documentation has been updated.
+
+-----------------------------------------------------------------
+Thu Jan 11 00:10:55 EST 2001
+
+New auxiliary program: i-ls.
+
+Improved install build process has better make logic and uses BSD
+install instead of cp.
+
+changing version number to 1.05
+
+-----------------------------------------------------------------
+Sun Dec 31 17:47:42 EST 2000
+
+Finally made hashtbl into a standalone library.  
+
+This cleans up dependencies and makes hashtbl useful to users outside
+the context of integrit.
+
+changing version number to 1.04
+
+-----------------------------------------------------------------
+Thu Dec 28 14:06:53 EST 2000
+
+new program: i-viewdb (in the aux directory) can be used to view
+integrit databases.
+
+changing version number to 1.03
+
+-----------------------------------------------------------------
+Thu Dec 21 13:49:00 EST 2000
+
+big bugfix: strcpy in options.c's do_rule was the reason for dmalloc
+	    and Boehm gc's complaints about smashed objects
+
+	    changed to memcpy  :)  Let's hear it for memory debuggers
+	    plus C!
+
+-----------------------------------------------------------------
+Tue Dec 19 17:20:29 EST 2000
+
+some of the changes for version 1.02:
+
+    -- debugging and memory leak checking have become configure
+       options
+
+    -- bugfixes
+
+    -- comprehensive human-readable format documented in manpage
+

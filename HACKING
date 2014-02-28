@@ -1,0 +1,21 @@
+integrit is in a near-perpetual feature freeze in order to avoid
+creeping featurism.  The mailing lists are appropriate forums for
+discussions of features.
+
+Recommendations for patches:
+
+  Patches for portability are welcome.  Please make patches against the
+  latest version of integrit.  See the following page for information on
+  how to use CVS to get it:
+  
+    http://sourceforge.net/cvs/?group_id=15369
+  
+  Patches should be context diffs or unified diffs.  Only substantive
+  changes should be in the patches.  (e.g., reformatting the whitespace
+  is not a substantive change and will make a patch unreadable.)
+  
+  There is no guarantee that submitted patches will be accepted.  Some
+  of the patches that have been submitted so far have been directly
+  applicable; some have contained helpful ideas; and some have contained
+  changes that would have made integrit less portable, less general,
+  less reliable, or less coherent.  

@@ -1,0 +1,7 @@
+This directory contains examples of how you can use integrit along
+with other UN*X tools like perl, cron, etc.
+
+integrit-run.c shows how to create a simple C program to run integrit
+on multiple roots.  Most sites will use something like Bourne shell
+scripts, but you can link integrit-run statically.  See the comments
+at the beginning of integrit-run.c for more information.

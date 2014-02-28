@@ -1,0 +1,52 @@
+#! /bin/sh
+# integrit - file integrity verification system
+# Copyright (C) 2006 Ed L. Cashin
+# 
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+# 
+# $Header: /cvsroot/integrit/integrit/examples/integrit_check,v 1.11 2006/04/07 09:41:13 wavexx Exp $
+
+host=`hostname`
+securedir=/mnt/secdb
+config=$1			# should be in read-only location
+recipient=$2
+arch=`uname`
+
+if [ "`whoami`" != "root" ]; then
+    echo Error: you must be root to run $0 1>&2
+    exit 1
+fi
+
+if [ "$recipient" = "" -o "$config" = "" ]; then
+    echo usage: $0 config_file email_recipient 1>&2
+    exit 1
+fi
+
+#------------integrit binary compiled for this architecture
+integrit=$securedir/bin/integrit-$arch	
+
+# do update (-u) and check (-c) 
+# ... with configuration $conf (-C) and human-readable output
+# ... piping output to sendmail; or exit with an error message
+# to standard output.
+
+(printf "To: $recipient\nSubject: integrit $host report\n\n";
+ $integrit -C $config -u -c) | /usr/lib/sendmail -t || {
+    echo $0 error 1>&2
+    exit 1
+}
+
+
+

@@ -1,0 +1,83 @@
+@c -*-texinfo-*-
+@c This is part of the Integrit File Verification System Manual.
+@c Copyright (C) 2006 Ed L. Cashin
+@c See the file integrit.texi for copying conditions.
+@setfilename ../info/i-ls
+
+@c Copyright (C) 2006 Ed L. Cashin
+@c 
+@c This program is free software; you can redistribute it and/or
+@c modify it under the terms of the GNU General Public License
+@c as published by the Free Software Foundation; either version 2
+@c of the License, or (at your option) any later version.
+@c 
+@c This program is distributed in the hope that it will be useful,
+@c but WITHOUT ANY WARRANTY; without even the implied warranty of
+@c MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+@c GNU General Public License for more details.
+@c 
+@c You should have received a copy of the GNU General Public License
+@c along with this program; if not, write to the Free Software
+@c Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+@c 
+
+@node i-ls
+@section i-ls
+@cindex i-ls
+
+The integrit system detects intrusion by detecting when trusted files
+have been altered.
+
+Integrit records information about files in a database when it does an
+update and compares that information to live files when it does a check.
+
+The @code{i-ls} standalone tool allows the user to see that same
+information for live files.
+
+The output syntax is similar to that of integrit.
+
+Options:
+
+@table @code
+@cindex checksum
+@item -s
+
+Do not show/calculate a checksums for all regular files.  In case i-ls
+cannot do a checksum (e.g. permission denied), a warning is issued.
+
+@end table
+
+It is invoked like this:
+
+@example
+    i-ls [-s] @{filename|dirname@} [filename|dirname] ...
+@end example
+
+You specify a filename for i-ls to examine, or you specify a directory
+to have i-ls examine all the files in the directory.
+
+Examples:
+
+@example
+     i-ls /tmp/foo.txt /tmp/bar.txt
+@end example
+
+@noindent
+@dots{} shows file stat attributes for the file, @code{/tmp/foo.txt}
+and also for @code{/tmp/bar.txt}.
+
+@example
+     i-ls /tmp
+@end example
+
+@noindent
+@dots{} shows file stat attributes for all files in the directory,
+@code{/tmp}. 
+
+@example
+     i-ls -s /tmp
+@end example
+
+@noindent
+@dots{} shows file stat attributes for all files in the directory,
+@code{/tmp}, omitting SHA-1 checksum information.

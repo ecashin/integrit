@@ -1,0 +1,38 @@
+#! /bin/sh
+# integrit - file integrity verification system
+# Copyright (C) 2006 Ed L. Cashin
+# 
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+# 
+
+# NOTE: the file, "bug-report", is generated from the file, "bug-report.m4"
+
+me=bug-report; export me
+rptdir=$me-$$; export rptdir
+make=${MAKE:-make}; export make
+echo $me: using temporary working directory: $rptdir
+echo $me: $make clean
+$make clean 2> /dev/null
+mkdir $rptdir || { echo "bug-report: FATAL failure: create directory for bug report" 1>&2; exit 1; }
+# configuring integrit
+echo $me: configuring integrit
+(./configure > $rptdir/$me-configure.out; success=$?; cp config.log config.h Makefile $rptdir; exit $success) || { echo "bug-report: ACTION FAILED: configuring integrit" 1>&2; (set -e; rm -f bug-report.tar bug-report.tar.gz; tar cf bug-report.tar $rptdir; gzip bug-report.tar) || { echo "bug-report: FATAL failure: bundle bug-report" 1>&2; exit 1; }; rm -rf $rptdir; exit; }
+# making integrit
+echo $me: making integrit
+$make > $rptdir/$me-$make.out || { echo "bug-report: ACTION FAILED: making integrit" 1>&2; (set -e; rm -f bug-report.tar bug-report.tar.gz; tar cf bug-report.tar $rptdir; gzip bug-report.tar) || { echo "bug-report: FATAL failure: bundle bug-report" 1>&2; exit 1; }; rm -rf $rptdir; exit; }
+echo $me: creating bug-report.tar.gz
+(set -e; rm -f bug-report.tar bug-report.tar.gz; tar cf bug-report.tar $rptdir; gzip bug-report.tar) || { echo "bug-report: FATAL failure: bundle bug-report" 1>&2; exit 1; }
+
+rm -rf $rptdir

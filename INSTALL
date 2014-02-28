@@ -1,0 +1,152 @@
+The following commands should build integrit:
+
+    ./configure && make
+
+Then after su'ing to root:
+
+    make install
+
+
+SECURE INSTALLATION --------------------------------------------------
+
+Please note that if you are doing this for real, you'll need to
+compile on a trusted machine (e.g., one with a fresh install of the OS
+that hasn't yet been plugged into the network) and copy the compiled
+binary to a secure location.
+
+At runtime the binary should be copied back to the localhost or run
+directly from the secure location.
+
+Doing otherwise is fine for testing, but it won't be secure, since
+there's less security in compiling integrit on an untrusted host, and
+no security in leaving the integrit binary on the host your checking.
+
+
+VIRTUAL MEMORY AND MMAP-----------------------------------------------
+
+Using virtual memory means that less virtual memory is available in
+the system.  mmap-ing a file uses no physical memory, but it may use
+virtual memory.  If you don't have lots of swap space, then your
+system may *think* it's low on memory even if it's just virtual memory
+that's being used.
+
+For this reason, it's now possible to limit the amount of virtual
+memory integrit uses for mmap.  Use the --with-max-mmap configure
+option to specify in bytes the biggest file size you want mmap'ed.
+(mmap is used only for reading databases, not for writing.)
+
+The default max is 10485760 bytes (ten megabytes) -- you might even
+want to raise it.  Use a max of zero to disable mmap-ing.
+
+
+TROUBLESHOOTING ------------------------------------------------------
+
+1)  compiler flags
+
+If your compiler uses some other flags to indicate that the binary
+should be linked statically, you can supply them when you configure
+integrit.  For example, if instead of "-static" (the default) your
+compiler wants to see "--static-bin", you can configure like this:
+
+  STATIC="--static-bin" ./configure
+
+... in a shell with Bourne shell syntax.  
+
+Linking statically is desirable because it means that if the system
+libraries are modified by an intruder, integrit itself isn't
+compromised. 
+
+The common convention of overriding the default compiler flags (-g
+-Wall -O2) by providing your own CFLAGS environment variable works
+with integrit, e.g., 
+
+  CFLAGS="" ./configure
+
+
+2)  documentation installation
+
+Integrit's documentation is in the GNU texinfo format, which has many
+advantages.  That means, however, that people who don't have the
+texinfo "install-info" tool in their path when they do a "make
+install" will see this message go by:
+
+  Warning: install-info did not run successfully.
+  	   to complete the installation of the documenation,
+  	   Make sure info is installed and install-info is in
+  	   the path when doing 'make install'
+  (pausing 3 seconds)
+
+That means that integrit won't be added to your system's info
+directory.  Debian has its own style of documentation management and
+its own install-info script.  For that reason, integrit defers to the
+debian package maintainer or individual debian sysadmin if it detects
+a non-texinfo install-info.
+
+install-info adds lines like this to the "dir" file (e.g., in
+/usr/share/info/dir):
+
+
+Security Tools
+* Integrit: (integrit).	        Integrit File Verification System.
+
+
+If necessary you can simply copy these lines literally into the dir
+file that your info browser uses.
+
+Alternatively, if you have an install-info with a funny-name or in a
+funny place, you can just tell make when you do "make install".  In
+this example, the binary is in the "/opt/cocteau-twins" directory and
+is named "liz" instead of "install-info"
+
+  make install INSTALL_INFO=/opt/cocteau-twins/liz
+
+
+3)  BSD-compatible install
+
+integrit's build process checks to see whether your system has an
+"install" program that it can use.  Some platforms have an install
+program that seems to be OK but isn't.  If you see errors during "make
+install", try using the install-sh script supplied with integrit: 
+
+  cd path/to/integrit
+  ./configure --with-install=`pwd`/install-sh
+
+
+4)  make compatibility
+
+If you have trouble during "make", try using GNU make.  Systems
+sometimes have GNU make installed as "gmake".
+
+However, integrit versions three and up should be compatible with most
+make programs.  Please write to the integrit-users list if you find a
+make that doesn't understand integrit's makefiles.
+
+
+5)  finding libraries
+
+This shouldn't be necessary since integrit stopped using openssl, but
+if you have a required library in a place your compiler wouldn't
+normally look, e.g. "/tmp/foo", you can provide that information to
+configure like so:
+
+ LDFLAGS="-L/tmp/foo/lib" ./configure
+
+... and to say where the headers are too ...
+
+ LDFLAGS="-L/tmp/foo/lib" CPPFLAGS="-I/tmp/foo/include" ./configure
+
+... for a shell with Bourne-shell syntax.
+
+
+6)  building in a separate directory
+
+You can build integrit in a directory other than the source directory.
+This feature can be especially helpful for sysadmins who need to build
+integrit for multiple architectures.  To use this feature, you would
+do something like this:
+
+  tar xvfz ~/packages/integrit-x.xx.tar.gz
+  mkdir integrit-x86
+  cd integrit-x86
+  ../integrit-x.xx/configure && make && make utils
+

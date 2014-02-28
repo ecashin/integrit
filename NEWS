@@ -1,0 +1,11 @@
+integrit 4.1: 
+
+	* Fixed exit status, considering missing files correctly as a change.
+
+
+integrit 4.0:
+
+	* Updated output format for "new" file checksums to match "removed".
+	* Switched to RipeMD160.
+	* Support for delayed failures with "stop_on_err".
+	* Minor cosmetic fixes in output.

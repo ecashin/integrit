@@ -1,0 +1,80 @@
+#! /bin/sh
+# integrit - file integrity verification system
+# Copyright (C) 2006 Ed L. Cashin
+# 
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+#
+# NOTE: the file, "test", is generated from the file, "test.m4"
+
+
+
+
+
+
+
+
+
+scriptdir="`dirname $0`"
+set -x
+
+# initial tests
+./integrit -V || { echo "test: TEST FAILED: running integrit binary" 1>&2; rm -rf $testdir; exit 1; }
+testdir=test-$$
+$scriptdir/make-filetree $testdir || { echo "test: TEST FAILED: creating test area" 1>&2; rm -rf $testdir; exit 1; }
+$scriptdir/make-config $testdir || { echo "test: TEST FAILED: creating config file" 1>&2; rm -rf $testdir; exit 1; }
+./integrit -C $testdir/test.conf -u; status=$? || { echo "test: TEST FAILED: integrit update" 1>&2; rm -rf $testdir; exit 1; }
+test $status = 0 || { echo "test: TEST FAILED: check normal exit status" 1>&2; rm -rf $testdir; exit 1; }
+test -f $testdir/curr.cdb || { echo "test: TEST FAILED: checking for current database" 1>&2; rm -rf $testdir; exit 1; }
+mv $testdir/curr.cdb $testdir/known.cdb || { echo "test: TEST FAILED: installing current db" 1>&2; rm -rf $testdir; exit 1; }
+./integrit -C $testdir/test.conf -c -u > $testdir/test.out; status=$? || { echo "test: TEST FAILED: integrit check and update" 1>&2; rm -rf $testdir; exit 1; }
+test $status = 1 || { echo "test: TEST FAILED: check changed exit status" 1>&2; rm -rf $testdir; exit 1; }
+test -f $testdir/curr.cdb || { echo "test: TEST FAILED: make sure update created new database" 1>&2; rm -rf $testdir; exit 1; }
+ grep "changed: .*curr\.cdb" $testdir/test.out || { echo "test: TEST FAILED: check for recognition that curr.cdb has changed" 1>&2; rm -rf $testdir; exit 1; }
+ grep "new: .*known\.cdb" $testdir/test.out || { echo "test: TEST FAILED: check for recognition that known.cdb is new" 1>&2; rm -rf $testdir; exit 1; }
+
+# file change
+modfile=$testdir/data/two/three
+modfile_esc="$testdir\/data\/two\/three"
+echo new contents > $modfile || { echo "test: TEST FAILED: modify a data file" 1>&2; rm -rf $testdir; exit 1; }
+mv $testdir/curr.cdb $testdir/known.cdb || { echo "test: TEST FAILED: install the database" 1>&2; rm -rf $testdir; exit 1; }
+./integrit -C $testdir/test.conf -c -u > $testdir/test.out; status=$? || { echo "test: TEST FAILED: integrit check and update" 1>&2; rm -rf $testdir; exit 1; }
+test $status = 1 || { echo "test: TEST FAILED: check changed exit status" 1>&2; rm -rf $testdir; exit 1; }
+test -f $testdir/curr.cdb || { echo "test: TEST FAILED: make sure update created new database" 1>&2; rm -rf $testdir; exit 1; }
+ grep "changed: .*curr\.cdb" $testdir/test.out || { echo "test: TEST FAILED: make sure output acknowledged curr.cdb has changed" 1>&2; rm -rf $testdir; exit 1; }
+ grep "changed: .*$modfile_esc .*s(" $testdir/test.out || { echo "test: TEST FAILED: make sure output acknowledged curr.cdb has changed" 1>&2; rm -rf $testdir; exit 1; }
+
+# file removal
+modfile=$testdir/data/two/three
+modfile_esc="$testdir\/data\/two\/three"
+$scriptdir/make-config -i $testdir || { echo "test: TEST FAILED: creating new file" 1>&2; rm -rf $testdir; exit 1; }
+./integrit -C $testdir/test.conf -u; status=$? || { echo "test: TEST FAILED: integrit update" 1>&2; rm -rf $testdir; exit 1; }
+mv $testdir/curr.cdb $testdir/known.cdb || { echo "test: TEST FAILED: install the database" 1>&2; rm -rf $testdir; exit 1; }
+./integrit -C $testdir/test.conf -c -u > $testdir/test.out; status=$? || { echo "test: TEST FAILED: integrit check and update" 1>&2; rm -rf $testdir; exit 1; }
+test $status = 0 || { echo "test: TEST FAILED: check unchanged exit status" 1>&2; rm -rf $testdir; exit 1; }
+rm $modfile || { echo "test: TEST FAILED: remove a file" 1>&2; rm -rf $testdir; exit 1; }
+./integrit -C $testdir/test.conf -c -u > $testdir/test.out; status=$? || { echo "test: TEST FAILED: integrit check and update" 1>&2; rm -rf $testdir; exit 1; }
+test $status = 1 || { echo "test: TEST FAILED: check changed exit status" 1>&2; rm -rf $testdir; exit 1; }
+ grep "missing: .*$modfile_esc .*s(" $testdir/test.out || { echo "test: TEST FAILED: make sure output acknowledged $modfile has changed" 1>&2; rm -rf $testdir; exit 1; }
+
+# unreadable file
+modfile=$testdir/data/two/three
+touch $modfile && chmod 000 $modfile || { echo "test: TEST FAILED: making a file unreadable" 1>&2; rm -rf $testdir; exit 1; }
+./integrit -C $testdir/test.conf -c -u > $testdir/test.out; status=$? || { echo "test: TEST FAILED: integrit check and update" 1>&2; rm -rf $testdir; exit 1; }
+test $status = 2 || { echo "test: TEST FAILED: check error exit status" 1>&2; rm -rf $testdir; exit 1; }
+
+# cleanup
+rm -rf $testdir
+set +x
+printf "\neverything's fine.\n"

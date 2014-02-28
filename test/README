@@ -1,0 +1,6 @@
+This directory contains a test suite and a bug-report generator, both
+of which are alpha code but work for me.
+
+If you have dot in your path (a bad idea in general) you may be
+confused if the test script here is found instead of your system's
+"test" command.

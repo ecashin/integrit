@@ -1,0 +1,129 @@
+# integrit - file integrity verification system
+# Copyright (C) 2006 Ed L. Cashin
+# 
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+# 
+
+.PHONY	: clean info install install-man install-info
+
+prefix		 = @prefix@
+exec_prefix	 = @exec_prefix@
+srcdir		 = @srcdir@
+# we aren't using VPATH
+# VPATH		 = @srcdir@
+MANDIR		 = @mandir@
+INSTALL	 = @INSTALL@
+INSTALL_INFO	 = install-info
+INFO_FILES	 = integrit.info
+infodir	 = @infodir@
+
+# target for developers puts info file in srcdir
+# 
+distready : info
+
+install : install-man install-info
+
+install-man :
+	@for n in 1; do \
+	  if test ! -d $(MANDIR)/man$$n; then \
+	    echo creating directory $(MANDIR)/man$$n; \
+	    $(INSTALL) -d $(MANDIR)/man$$n; \
+	  fi; \
+	  for f in *.$$n; do \
+	    echo installing manpage $$f in $(MANDIR)/man$$n; \
+	    $(INSTALL) -m 644 $$f $(MANDIR)/man$$n/$$f; \
+	  done; \
+	done
+
+# install-info (the host's command, not the makefile target) is different on
+# debian (perl script) than others (texinfo compiled executable), and worse, 
+# they accept different syntaxes.  sometimes it isn't even present.
+# 
+# the texinfo install-info will create a missing dir file, but the Debian
+# version 1.9.20 doesn't.  it also hangs on empty dir files.  
+# 
+# so we accomodate at the price of some complexity.
+# 
+install-info : 
+	@if test ! -d $(infodir); then \
+	  echo creating directory $(infodir); \
+	  $(INSTALL) -d $(infodir); \
+	fi
+	@for f in $(INFO_FILES); do \
+	  echo installing $$f in $(infodir); \
+	  $(INSTALL) -m 644 $(srcdir)/$$f $(infodir); \
+	done
+	@:; iistatus=0; \
+	$(INSTALL_INFO) --version > /dev/null 2>&1; stat=$$?; \
+	if test $$stat != 0; then \
+	  iistatus=1; \
+	elif test ! -z "`$(INSTALL_INFO) --version 2>&1 | grep texinfo`"; then \
+	  (set -xe; \
+	    $(INSTALL_INFO) --dir-file=${infodir}/dir \
+	                    --info-file=${infodir}/integrit.info < /dev/null \
+	  ) || iistatus=1; \
+	else \
+	  echo " ***                                               *** "; \
+	  echo " *** non-texinfo version of install-info detected. *** "; \
+	  echo " *** see INSTALL for more information              *** "; \
+	  echo " ***                                               *** "; \
+	fi; \
+	if [ $$iistatus != 0 ]; then \
+	  echo "Warning: $(INSTALL_INFO) did not run successfully."; \
+	  echo "         to complete the installation of the documenation,"; \
+	  echo "         please read INSTALL."; \
+	  echo "(pausing 3 seconds)"; \
+	  sleep 3; \
+	fi
+
+info	: 
+	makeinfo -o $(srcdir)/integrit.info $(srcdir)/integrit.texi
+
+# hackish target for developers (bypasses ../configure)
+ps :
+	INTEGRIT_VERSION=`sed -n 1p ../README | awk '{ print $$3 }'`; \
+	if [ -z "$$INTEGRIT_VERSION" ]; then \
+	  echo oh, darn. 1>&2; \
+	  exit 1; \
+	fi; \
+	echo $$INTEGRIT_VERSION; \
+	sed "s/[@]INTEGRIT_VERSION[@]/$$INTEGRIT_VERSION/g" \
+	  integrit.texi.in > integrit.texi \
+	  && makeinfo integrit.texi \
+	  && texi2dvi integrit.texi \
+	  && dvips -o integrit.ps integrit
+
+# hackish target for developers (bypasses ../configure)
+# NOTE: html winds up in integrit subdir without "--no-split" in texinfo-4.2
+# 
+html :
+	INTEGRIT_VERSION=`sed -n 1p ../README | awk '{ print $$3 }'`; \
+	if [ -z "$$INTEGRIT_VERSION" ]; then \
+	  echo oh, darn. 1>&2; \
+	  exit 1; \
+	fi; \
+	echo $$INTEGRIT_VERSION; \
+	sed "s/[@]INTEGRIT_VERSION[@]/$$INTEGRIT_VERSION/g" \
+	  integrit.texi.in > integrit.texi \
+	  && ~/opt/texinfo-4.2/bin/makeinfo --html --no-split integrit.texi
+# 	  && makeinfo --html integrit.texi
+
+clean	:
+	rm -f integrit.1 i-viewdb.1 i-ls.1 integrit.texi
+
+realclean : clean
+
+distclean : clean
+	rm -f Makefile

@@ -1,0 +1,36 @@
+--------- todo.txt -----------
+
+there's a test for the "long long" type in configure from a time when
+I thought that I'd need it for cross-platform databases.  This test
+isn't really needed, but I'm leaving it in, since it might come in
+handy one day.
+
+PROGNAME (with elcerror) doesn't work for utils programs
+
+someone (but probably not me) might make the viewreport example viewer
+for the XML output show the file characteristics that are included in
+reporting a new file.
+
+increased info for missing files has only been added to human-readable
+output.  If someone is using XML misses it, it should be added to the
+XML output as well.
+
+keep an eye on the ranlib/ar stuff in the build process
+
+more tests in the test suite.
+
+put a filename identifier at top of all files to help when folks send
+files to me.
+
+provide a way for users to see debugging info?  user could see files
+  that were being processed more easily than using lsof.
+
+see if integrit can continue with warning when encountering a large
+  file on a platform without support for large files.
+
+satisfy autoconf 2.53 about the way config.h stuff is done.
+
+change the way configure checks for stdint.h so that it works correctly,
+e.g., on cygwin, which doesn't have stdint.h.
+
+move dtd from xml.c into a documentation file.

@@ -1,0 +1,42 @@
+#! /bin/sh
+# integrit - file integrity verification system
+# Copyright (C) 2006 Ed L. Cashin
+# 
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+# 
+# $Header: /cvsroot/integrit/integrit/examples/install_db,v 1.7 2006/04/07 09:41:13 wavexx Exp $
+
+# install_db - rotate integrity database on host "foo" and install new one
+# 
+# copies new integrity database (e.g. for tripwire, aide, or integrit)
+# from the localhost to host foo (the secure db server), doing
+# checksums to verify that the install went OK.
+#
+# edit before using!  Note that it assumes there's an "integrit" group
+# on the remote host.
+# 
+
+db=$1
+host=foo
+
+if [ "$db" = "" ] || [ ! -r $db ]; then
+    echo usage: $0 dbfile 1>&2
+    exit 1
+fi
+dbdir=`dirname $db`
+dbfile=`basename $db`
+
+cd $dbdir && md5sum $dbfile && tar cf - $dbfile \
+   | ssh -l root $host "cd /usr/share/i-db && mv $dbfile $dbfile.1 && tar xvf - && echo checksum ... && md5sum $dbfile && chown root:integrit $dbfile && chmod 640 $dbfile"

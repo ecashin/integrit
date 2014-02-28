@@ -1,0 +1,24 @@
+			hashtbl version 2.00
+			  -----------------
+
+hashtbl is a standalone library adapted for use with integrit,
+Copyright (c) 2001, 2002 Ed L Cashin.
+
+You can make a test program, hash test, by issuing the command, "make
+hashtest".  The hashtest runs slow because printing to the terminal is
+slow, but also because it starts out with a very small capacity so as
+to exercise the resizing parts of hashtbl.  You'd normally start with
+a guesstimate of the capacity you'll really need.
+
+Use libhashtbl in your programs by including "hashtbl.h", calling the
+functions prototyped in hashtbl.h, and linking with "-lhashtbl".  The
+library has to be in the places the compiler looks.  
+
+You can run "make install" to make libhashtbl available on your
+system.  You can also tell the compiler where to look with an option
+(e.g., "-L/my/dir" for gcc.  See your compiler's docs).
+
+I welcome feedback!  
+
+Ed L Cashin <ecashin@users.sourceforge.net>
+January 2001

@@ -1,0 +1,300 @@
+#! /usr/bin/perl -w 
+# integrit - file integrity verification system
+# Copyright (C) 2006 Ed L. Cashin
+# 
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+# 
+# $Header: /cvsroot/integrit/integrit/examples/viewreport,v 1.14 2006/04/07 09:41:13 wavexx Exp $
+
+# extensions based on a patch from
+# Volker Apelt <va@org.chemie.uni-frankfurt.de>
+# added to version 1.6 of this file.
+
+use strict;
+use XML::Grove;
+use XML::Grove::Builder;
+use XML::Parser::PerlSAX;
+use Tk;
+
+if ("debug" eq "yup") {
+    use Data::Dumper;
+}
+
+&go;
+
+sub go {
+    &show_excuses;
+    
+    push @ARGV, "-" if ! @ARGV;	# default to stdin
+    
+    foreach my $fname (@ARGV) {
+	&show_report($fname);
+    }
+}
+
+sub show_excuses {
+    print STDERR <<"MY_BOLOGNA_HAS_A_FIRST_NAME";
+viewreport - an example of a GUI viewer for the XML reports that integrit
+             generates.
+
+I'm not too much of a GUI programmer, so I'm sure you can do better!
+
+MY_BOLOGNA_HAS_A_FIRST_NAME
+    # '  # for emacs (in case single quote in here doc are odd)
+}
+
+sub show_report {
+    die "Error: parameter missing" if @_ < 1;
+    
+    my ($fname)	 = @_;
+
+    #--------------use perl for XML parsing 
+    my $xml	 = &slirp_file($fname);
+    my $gbuilder         = new XML::Grove::Builder;
+    my $parser           = new XML::Parser::PerlSAX('Handler' => $gbuilder);
+    my $doc              = $parser->parse('Source' => {
+        'String' => $xml,
+    });
+    die "Error: unable to parse XML" unless $doc;
+
+    my $report	 = &get_report($doc);
+    # print new Data::Dumper([ $report ])->Dump and die;	# debug
+
+    #--------------use Perl/Tk for the GUI
+    my $mw	 = new MainWindow(-title => "demo integrit report viewer");
+    my $date	 = localtime($report->{'Attributes'}{'date'});
+    $mw->Label(-text => "report from $date")->pack;
+    $mw->Button(-text => 'Quit', -command => [ $mw => 'destroy' ])->pack;
+    my $box = $mw->Listbox(-relief => 'sunken',
+			   -width => -1, # Shrink to fit
+			   -height => 5,
+			   -setgrid => 1);
+    $box->bind('<Double-1>' => sub { &show_info($_[0], $report); });
+    &insert_elements($box, $report);
+    my $scroll = $mw->Scrollbar(-command => ['yview', $box]);
+    $box->configure(-yscrollcommand => ['set', $scroll]);
+    $box->pack(-side => 'left', -fill => 'both', -expand => 1);
+    $scroll->pack(-side => 'right', -fill => 'y');
+	
+    MainLoop();
+}
+
+#--------------show more info for a given report line 
+sub show_info {
+    die "Error: missing parameter" if @_ < 2;
+    my ($mw, $report)        = @_;
+
+    my $target	 = $mw->get('active');
+
+    foreach my $elem (@{ $report->{'Contents'} }) {
+	my $name	 =  $elem->{'Name'};
+	my $elem_data	 = &elem_data($elem);
+	next unless $name;
+	if (($name eq "change")
+	    && ($target =~ m/^change/)) {
+	    my $type		 = $elem->{'Attributes'}{'type'};
+	    my $filename	 = $elem->{'Attributes'}{'file'};
+	    my $tag	 = "$name ($type): $filename";
+	    if ($tag eq $target) {
+		&display_change($mw, $elem);
+	    }		
+	} elsif (($name eq "options")
+		 && ($target eq "options")) {
+	    &display_options($mw, $elem);
+	} elsif ($target eq "$name: $elem_data"){
+	    &display_misc($mw, $elem);
+	}
+    }
+}
+
+#-----------------show changed data 
+sub display_change {
+    die "Error: missing parameter" if @_ < 2;
+    my ($mw, $elem)        = @_;
+
+    my $type		 = $elem->{'Attributes'}{'type'}; # e.g. stat, SHA-1
+    my $filename	 = $elem->{'Attributes'}{'file'};
+    my ($old, $new)	 = ("(unknown)", "(unknown)");
+
+    my $change	 = $elem->{'Contents'}[0];
+    # $type	 .= ": " . $change->{'Name'};
+
+    my $changew	 = $mw->Toplevel(-title => "viewreport: change"); # new window
+    $changew->Label(-text => "file: $filename")->pack;
+    $changew->Label(-text => "type of change: $type")->pack;
+
+    foreach my $change (@{ $elem->{'Contents'} }) {
+	if ($type eq "stat") {
+	    my $statkind	 = $change->{'Name'}; # e.g., mtime, atime
+	    my $postprocess	 = &postprocessor_for_statchange($statkind);
+	    $changew->Label(-text => "stat change: $statkind")->pack;
+	    foreach my $stat (@{ $change->{'Contents'} }) {
+		my $name	 = $stat->{'Name'};
+		if (($name eq "old") || ($name eq "new")) {
+		    my $val	 = $postprocess->(&elem_data($stat));
+		    $changew->Label(-text => "$name: $val")->pack;
+		}
+	    }
+	} else {
+	    my $name	 = $change->{'Name'};
+	    if (($name eq "old") || ($name eq "new")) {
+		my $val	 = &elem_data($change);
+		$changew->Label(-text => "$name: $val")->pack;
+	    }
+	}
+    }
+
+    $changew->Button(-text => "Dismiss",
+		     -command => [ $changew => 'destroy' ])->pack;
+}
+sub display_options {
+    die "Error: missing parameter" if @_ < 2;
+    my ($mw, $elem)        = @_;
+
+    #-----------new window
+    my $optionsw	 = $mw->Toplevel(-title => "viewreport: options");
+
+    foreach my $thang (@{ $elem->{'Contents'} }) {
+	my $name	 = $thang->{'Name'};
+	next unless $name;
+	my $val		 = &elem_data($thang);
+	$optionsw->Label(-text => "$name: $val")->pack;
+    }
+    $optionsw->Button(-text => "Dismiss",
+		      -command => [ $optionsw => 'destroy' ])->pack;
+}
+sub display_misc {
+    die "Error: missing parameter" if @_ < 2;
+    my ($mw, $elem)        = @_;
+    
+    my $name	 = $elem->{'Name'};
+    return unless $name;
+    
+    #-----------new window
+    my $miscw	 = $mw->Toplevel(-title => "viewreport: misc");
+
+    my $val		 = &elem_data($elem);
+    $miscw->Label(-text => "$name: $val")->pack if $val =~ /\S/;
+    $miscw->Button(-text => "Dismiss",
+		      -command => [ $miscw => 'destroy' ])->pack;
+}
+
+sub get_report {
+    die "Error: missing parameter" if @_ < 1;
+    my ($doc)        = @_;
+
+    my $report;
+    foreach my $elem (@{ $doc->{'Contents'} }) {
+	if ($elem->{'Name'} eq "report") {
+	    $report	 = $elem;
+	}
+    }
+    die "no report found" unless $report;
+    return $report;
+}
+
+sub insert_elements {
+    die "Error: missing parameter" if @_ < 2;
+    my ($box, $report)        = @_;
+
+    foreach my $elem (@{ $report->{'Contents'} }) {
+	my $name	 =  $elem->{'Name'};
+	next unless $name;
+	if ($name eq "change") {
+	    my $type		 = $elem->{'Attributes'}{'type'};
+	    my $filename	 = $elem->{'Attributes'}{'file'};
+	    $box->insert('end', "$name ($type): $filename");
+	} elsif ($name eq "options") {
+	    $box->insert('end', $name);
+	} else {
+	    $box->insert('end', "$name: " . &elem_data($elem));
+	}
+    }
+}
+
+sub elem_data {
+    die "Error: missing parameter" if @_ < 1;
+    my ($thang)        = @_;
+
+    my $contents	 = $thang->{'Contents'} or return "(no data)";
+    foreach my $elem (@$contents) {
+	next unless $elem->{'Data'};
+	return $elem->{'Data'};
+    }
+    return "(no data)";
+}
+
+sub slirp_file {
+    die "Error: missing parameter" if @_ < 1;
+    my ($self, $filename)        = @_; # disgard self param
+    if (! ref $self) {
+        #--------assume it's not an OO method if there's no
+        #        reference in the first param.
+        $filename        = $self;
+    }
+    open SLIRPFILE, $filename
+      or die "Error: could not open $filename for reading";
+    local $/             = undef;
+    my $file_contents    = <SLIRPFILE>;
+    close SLIRPFILE;
+
+    return $file_contents;
+}
+ 
+####### element post processors
+# turn raw element data into readable text 
+sub postprocessor_for_statchange {
+    die "Error: missing parameter" if @_ < 1;
+    my ($statchange)	 = @_;
+    if ($statchange =~ m/_time$/) {
+	return \&post_processor_time2localtime;
+    } elsif ( $statchange eq 'gid' ){
+	return \&post_processor_gid;
+    } elsif ( $statchange eq 'uid' ){
+	return \&post_processor_uid;
+    }
+    return \&post_processor_noop;
+}
+sub post_processor_noop {
+    return $_[0];
+}
+sub post_processor_time2localtime {
+    my $time = shift; # time in unix seconds since ....
+    return localtime($time);
+}
+sub post_processor_gid {
+    my $gid  = shift; # numeric gid
+    if( $gid !~ /^\d+/ ){
+	return "$gid";
+    }
+    my $name = getgrgid($gid); # must be scalar!
+    if( ! defined $name ){
+	return "(unknown)$gid";
+    }
+    return $name;
+}
+sub post_processor_uid {
+    my $uid  = shift; # numeric gid
+    if( $uid !~ /^\d+/ ){
+	return "$uid";
+    }
+    my $name = getpwuid($uid); # must be scalar!
+    if( ! defined $name ){
+	return "(unknown)$uid";
+    }
+    return $name;
+}
+####### end element post processors
+

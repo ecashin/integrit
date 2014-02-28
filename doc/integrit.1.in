@@ -1,0 +1,112 @@
+.\" integrit - file integrity verification system -*- nroff -*-
+.\" Copyright (C) 2006 Ed L. Cashin
+.\" @configure_input@
+.\" 
+.\" This program is free software; you can redistribute it and/or
+.\" modify it under the terms of the GNU General Public License
+.\" as published by the Free Software Foundation; either version 2
+.\" of the License, or (at your option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful,
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+.\" GNU General Public License for more details.
+.\" 
+.\" You should have received a copy of the GNU General Public License
+.\" along with this program; if not, write to the Free Software
+.\" Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+.\" 
+.ds ]W "integrit
+.de q
+``\\$1''\\$2
+..
+.TH integrit 1 "Jul 27, 2001" "Version @INTEGRIT_VERSION@"
+.SH NAME
+integrit \- file integrity verification system
+
+This manpage is a brief reference and may be out of date.  The
+definitive texinfo documentation should be viewable by running "info
+integrit".
+
+.SH SYNOPSIS
+.I integrit
+-C
+.I conffile OPTIONS
+
+.I integrit
+-V
+
+.I integrit
+-h
+
+.SH OPTIONS
+
+.IP "\fB\-C\fP"
+
+Specify
+.I conffile
+as the configuration file for integrit.
+
+.IP "\fB\-V\fP"
+
+Show integrit version information and exit.
+
+.IP "\fB\-h\fP"
+
+Show brief help.
+
+.IP "\fB\-x\fP"
+
+Produce XML output.
+
+.IP "\fB\-u\fP"
+
+Do update \- create a new database that reflects the current state of
+the system.
+
+.IP "\fB\-c\fP"
+
+Do check \- compare the current state of the system to a database
+containing a snapshot of the system when it was in a known state.
+
+.IP "\fB\-N\fP"
+
+Manually override specification of the current ("New") database.
+Normally it is set in the configuration file.
+
+.IP "\fB\-O\fP"
+
+Manually override specification of the known ("Old") database.  Normally
+it is set in the configuration file. 
+
+.IP "\fB\-q\fP"
+
+Lower integrit's level of verbosity.
+
+.IP "\fB\-v\fP"
+
+Increase integrit's level of verbosity.
+
+.SH DESCRIPTION
+The
+.I integrit
+system detects intrusion by detecting when trusted files have been altered.
+
+By creating an integrit database (update mode) that is a snapshot of a
+host system in a known state, the host's files can later be verified
+as unaltered by running integrit in check mode to compare current
+state to the recorded known state.  integrit can do a check and an
+update simultaneously.
+
+.SH AUTHOR
+
+Ed L Cashin <ecashin@users.sourceforge.net>
+
+See the integrit web site for up to date releases and information at 
+
+    http://integrit.sourceforge.net/
+
+.SH "SEE ALSO"
+.I Integrit File Verification System Manual
+(info), lstat(2)
+

@@ -1,0 +1,724 @@
+\input texinfo  @c -*-texinfo-*-
+@c @configure_input@
+@c
+@c     UPDATE THE DATE after editing integrit.texi.in.
+@c     search for "UPDATE THIS DATE"
+
+@c %**start of header
+@setfilename integrit
+@settitle Integrit File Verification System
+@c %**end of header
+
+@c Copyright (C) 2006 Ed L. Cashin
+@c 
+@c This program is free software; you can redistribute it and/or
+@c modify it under the terms of the GNU General Public License
+@c as published by the Free Software Foundation; either version 2
+@c of the License, or (at your option) any later version.
+@c 
+@c This program is distributed in the hope that it will be useful,
+@c but WITHOUT ANY WARRANTY; without even the implied warranty of
+@c MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+@c GNU General Public License for more details.
+@c 
+@c You should have received a copy of the GNU General Public License
+@c along with this program; if not, write to the Free Software
+@c Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+@c 
+
+@c
+@c    *** UPDATE DATE AT "@subtitle" WHEN EDITING THE DOCUMENT ***
+@c 
+
+@dircategory Security Tools
+@direntry
+* Integrit: (integrit).	        Integrit File Verification System.
+@end direntry
+
+@html
+
+<p>This manual corresponds to integrit version @INTEGRIT_VERSION@.<br />
+Copyright (C) 2006 Ed L. Cashin</p>
+
+<p>Current copies should be available at <a
+href="http://integrit.sourceforge.net/texinfo/">the integrit homepage</a>.</p>
+
+<p><i>the integrit file verification system is an independent project hosted by Sourceforge.</i></p>
+<a href="http://sourceforge.net"><img
+src="http://sourceforge.net/sflogo.php?group_id=12342" width="88"
+height="31" border="0" alt="SourceForge Logo"></a>
+
+<hr>
+
+@end html
+
+@ifinfo
+This manual corresponds to integrit version @INTEGRIT_VERSION@.
+
+Copyright (C) 2006 Ed L. Cashin
+
+@c legal stuff copied from the Emacs Lisp manual, which is (C) FSF
+Permission is granted to make and distribute verbatim copies of this
+manual provided the copyright notice and this permission notice are
+preserved on all copies.
+
+@ignore
+Permission is granted to process this file through TeX and print the
+results, provided the printed document carries copying permission notice
+identical to this one except for the removal of this paragraph (this
+paragraph not being relevant to the printed manual).
+
+@end ignore
+Permission is granted to copy and distribute modified versions of this
+manual under the conditions for verbatim copying, provided that the
+entire resulting derived work is distributed under the terms of a
+permission notice identical to this one.
+
+Permission is granted to copy and distribute translations of this manual
+into another language, under the above conditions for modified versions,
+except that this permission notice may be stated in a translation
+approved by the Foundation.
+
+Permission is granted to copy and distribute modified versions of this
+manual under the conditions for verbatim copying, provided also that the
+section entitled ``GNU General Public License'' is included exactly as
+in the original, and provided that the entire resulting derived work is
+distributed under the terms of a permission notice identical to this
+one.
+
+Permission is granted to copy and distribute translations of this manual
+into another language, under the above conditions for modified versions,
+except that the section entitled ``GNU General Public License'' may be
+included in a translation approved by the Free Software Foundation
+instead of in the original English.
+@end ifinfo
+
+@c @synindex cp fn
+
+@c @setchapternewpage odd
+@finalout
+
+@titlepage
+@title Integrit File Verification System Manual
+@subtitle for Version @INTEGRIT_VERSION@
+@c the date this documentation was last updated
+@c
+@c         *** UPDATE THIS DATE WHEN EDITING THE DOCUMENT ***
+@c 
+@subtitle 07 April 2006
+
+@author by Ed L. Cashin
+@page
+@vskip 0pt plus 1filll
+Copyright @copyright{} 2001-2006 Ed L. Cashin
+
+@sp 2
+Permission is granted to make and distribute verbatim copies of this
+manual provided the copyright notice and this permission notice are
+preserved on all copies.
+
+Permission is granted to copy and distribute modified versions of this
+manual under the conditions for verbatim copying, provided also that the
+section entitled ``GNU General Public License'' is included
+exactly as in the original, and provided that the entire resulting
+derived work is distributed under the terms of a permission notice
+identical to this one.
+
+Permission is granted to copy and distribute translations of this manual
+into another language, under the above conditions for modified versions,
+except that the section entitled ``GNU General Public License'' may be
+included in a translation approved by the Free Software Foundation
+instead of in the original English.
+
+@end titlepage
+@page
+
+@contents
+@page
+
+@comment  node-name,  next,  previous,  up
+@node Top, Introduction, (dir), (dir)
+
+@ifinfo
+This manual corresponds to integrit version @INTEGRIT_VERSION@.
+@end ifinfo
+
+@menu
+* Introduction::            General information and orientation.
+* Invoking Integrit::       Commandline options.
+* Configuration File::      The runtime configuration file.
+* Human Readable Output::   The easy-to-scan format explained.
+* Exit Status::             Understanding integrit's exit status.
+* Auxiliary Tools::         Tools you can ignore or delight in.
+* FAQ::                     Frequently Asked Questions and some answers.
+* Resources::               How to find more.
+* Copying::                 Conditions for copying and changing integrit.
+* Concept Index::           Look up ideas.
+@end menu
+
+@comment  node-name,  next,  previous,  up
+@node Introduction, Invoking Integrit, Top, Top
+@chapter Introduction
+
+@menu
+* Description::          What is integrit?
+* Normal Use::           Using integrit.
+@end menu
+
+@node Description
+@section Description
+@cindex database
+
+The integrit system detects intrusion by detecting when trusted files
+have been altered.
+
+By creating an integrit database (update mode) that is a snapshot of a
+host system in a known state, the host's files can later be verified
+as unaltered by running integrit in check mode to compare current
+state to the recorded known state.  integrit can do a check and an
+update simultaneously.
+
+@node Normal Use
+@section Normal Use
+@cindex routine
+@cindex database
+
+Using a product like integrit for intrusion detection is a repeating
+process, involving something like the following activities:
+
+@enumerate
+@item
+generate a new current-state database while checking against an old
+known-state database that has been protected from modification
+(e.g. by putting it on read-only media or on a secure server), mailing
+the output to a remote machine (or more)
+
+This step can be done unattended, since the report that integrit
+generates at runtime includes the checksum of the newly-generated
+current-state database.  The output should be directed to a remote
+host, e.g., via a trusted sendmail binary.
+
+You may use a script to renice the integrit process and possibly do a
+sequence of runs, each with a different configuration file.
+
+@item
+read the report, possibly using UN*X or XML tools to massage it into a
+form to your liking
+
+@cindex XML
+
+There is an example GUI viewer for integrit's XML output in the 
+@code{examples} directory of the distribution.
+
+Below please find a description of the syntax of integrit's
+human-readable output format.
+
+@item
+@cindex NFS
+if the report looks fine, copy the new database to a secure server for
+export via read-only NFS, or a secure medium that can be made
+read-only. (saving the old one in case something goes wrong.)
+
+@item
+@strong{IMPORTANT:}
+verify that the current checksum of the database you just copied over
+matches the one in the report. (This shows that no one has tampered
+with the database since the report and the new database were
+generated.)
+
+@item
+everything's OK, so the new database will be the known-state database
+the next time you repeat this process.
+@end enumerate
+
+@comment  node-name,  next,  previous,  up
+@node Invoking Integrit, Configuration File, Introduction, Top
+@chapter Invoking Integrit
+
+  Here is a list of command-line arguments that may be used when
+invoking integrit:
+
+@cindex options
+@table @code
+@item -C @{conffile@}
+
+Specify a runtime configuration file for integrit. 
+
+@item -V
+
+Show integrit version information and exit.
+
+@item -h
+
+Show brief help.
+
+@cindex XML
+@item -x
+
+Produce XML output.
+
+@cindex update
+@item -u
+
+Do update - create a new database that reflects the current state of
+the system.
+
+@cindex check
+@item -c
+
+Do check - compare the current state of the system to a database
+containing a snapshot of the system when it was in a known state.
+
+@cindex new database
+@cindex current database
+@item -N
+
+Manually override specification of the current (``New'') database.
+Normally it is set in the configuration file.
+
+@cindex old database
+@cindex known database
+@item -O
+
+Manually override specification of the known (``Old'') database.
+Normally it is set in the configuration file.
+
+@cindex verbosity
+@item -q
+
+Lower integrit's level of verbosity.
+
+@item -v
+
+Increase integrit's level of verbosity.
+
+@end table
+
+@comment  node-name,  next,  previous,  up
+@node Configuration File, Human Readable Output, Invoking Integrit, Top
+@chapter Configuration File
+@cindex configuration file
+
+@cindex NFS
+The configuration file determines what integrit does when it runs. For
+that reason, it should be kept on a secure medium, like a CD-ROM or a
+directory that's exported via read-only NFS from a tightly-secured
+machine.@footnote{Your kernel may also support read-only files on the
+localhost.  The FreeBSD kernel, for example, when running in higher
+security levels, honors the ``immutable'' file attribute.  On such a
+system you could keep integrit's @emph{known} database locally, but
+you'd have to install it in single-user mode.}
+
+Please note that a trailing slash is never part of a filename, including
+directory names.  A slash is a path separator, and any other use is not
+supported. 
+
+@menu
+* Config File Elements::          Parts of the config file.
+* Config Rule Prefixes::          Relating a rule to the filesystem.
+* Config Rule Checksets::         Specifying what checks to do.
+@end menu
+
+@node Config File Elements
+@section Config File Elements
+
+@itemize @bullet
+@cindex comments
+@item comments
+
+The following kinds of lines in the configuration file are ignored by
+integrit: blank lines; lines consisting of whitespace only; lines
+having the @code{#} character as the first non-whitespace character.
+
+@cindex database
+@cindex known database
+@item known database
+
+The location of the known database (which contains information about
+the previous state of the host's files) is specified with a line like
+this:
+
+@example
+     known=/root/databases/usr_known.cdb
+@end example
+
+@cindex current database
+@item current database
+
+The location of the current database (the one to be generated if
+integrit is doing an update) is specified in a similar manner.
+
+@example
+    current=/root/databases/usr_current.cdb
+@end example
+
+@cindex root
+@item the root of integrit's check
+
+The root of the filetree that integrit will cover is specified on a
+line like this:
+
+@example
+    root=/usr
+@end example
+
+Integrit's file tree walk starts at the root.  Everything integrit
+checks must be under the root.  In the above example, the "/boot"
+directory will never be checked because it is not under /usr.  You can
+specify slash as the root and then ignore lots of directories like /tmp,
+/proc, and /home, or you can use multiple configuration files.
+
+To search multiple roots, use multiple configure files and launch
+multiple instances of integrit, either in sequence or in parallel,
+depending on your needs.
+
+@cindex stop_on_err
+@item behavior on errors
+
+By default integrit stops scanning at the first error. When running as
+root, errors usually mean severely broken permissions or media errors
+that the administrator should take note of immediately. When
+@code{stop_on_err} is set to ``0'' instead, integrit will try to
+continue as much as possible, ignoring all non-fatal errors in the
+process.
+
+@cindex rules
+@cindex checksets
+@item rules
+
+Rules in the configuration file tell integrit how to treat various parts
+of the filesystem.  You can tell integrit to ignore @code{/proc}, not to
+do checksums on logfiles, not to descend into @code{/home}, to ignore
+the modification time on @code{/etc/issue}, etc.
+
+Whether or not integrit descends parts of the filetree, and whether or
+not it does checksums, comparison of access times, etc., are specified
+in a compact syntax (described below) on lines like these:
+
+@example
+    !/usr/local/useless
+    !/usr/mnt/nfs
+    =/usr/share/teTeX
+    /usr/local/var/log SIAM
+@end example
+
+We'll get into the nitty gritty in the following sections.
+
+@end itemize
+
+@cindex prefixes, rule
+@node Config Rule Prefixes
+@section Config Rule Prefixes
+
+When integrit is running it can do several things.  By specifying
+@emph{rules} for integrit to follow, you can control its behavior.  Each
+rule has an optional prefix or prefixes, a filename (or directory name),
+and a set of checks that integrit should or should not do.
+
+A prefix comes before the filename and tells integrit something
+
+@table @code
+
+@cindex !
+@cindex exclamation point
+@cindex ignore
+@item !
+
+An @emph{exclamation point} means ``ignore''. 
+
+It will cause integrit to pretend a file or directory isn't there.
+
+@example
+    # ignore the useless directory and its subdirectories
+    !/usr/local/useless
+@end example
+
+@cindex =
+@cindex equal sign
+@cindex don't descend
+@item =
+
+An @emph{equal sign} means ``don't descend''.  It will cause
+integrit to do checks on the file itself, but if it's a directory,
+integrit won't visit its subdirectories.
+
+This is useful for telling integrit not to bother with certain parts
+of a file tree.  
+
+@example
+    # don't bother with old_project's subdirectories,
+    # but do perform normal checks on the directory itself
+    =/usr/local/share/old_project
+@end example
+
+You can cut down drastically on database size and integrit's runtime
+by ignoring parts of the filesystem that are not essential to the
+system, e.g., home directories.  
+
+In general, integrit is much easier to use on a daily basis if it's just
+checking the most essential parts of a system.  Some sysadmins, however,
+have told me that they enjoy getting more in touch with their systems by
+having integrit monitor almost everything!
+
+@cindex $
+@cindex dollar sign
+@cindex non-cascading rules
+@cindex non-inheriting rules
+@item $
+
+A @emph{dollar sign} prefix indicates a @emph{non-cascading rule} that
+doesn't get inherited by subdirectories and files as regular rules do.
+
+@example
+    # this redhat system updates /etc/issue on boot
+    # so we ignore modification and change time on /etc,
+    # but we still want to monitor mtime and ctime on
+    # some files and directories under this /etc.
+
+    $ /etc     MC
+@end example
+
+@end table
+
+@node Config Rule Checksets
+@section Config Rule Checksets
+
+@itemize @bullet
+
+@cindex checksets
+@cindex switches
+@item a set of switches 
+
+A filename followed by a set of one-letter switches turns checks on
+and off, for example:
+
+@example
+    # do check the access time, but don't do a checksum:
+    /usr/local/secret/text.txt aS
+@end example
+
+There are no spaces between the switches.
+
+@item switch syntax
+
+Upper case turns off a given check. Lower case turns it on.
+
+When you turn off a check, e.g. by using @code{S} for ``no checksums'',
+then all subdirectories inherit that option: no checksums are done.
+
+You can always override switches that are inherited from parent
+directories.  There is also a special dollar-sign prefix (described
+above) you can use to override the normal cascading behavior.
+
+e.g., In the example below, all the stuff under /var/log won't have
+checksums done, except all the files under /var/log/archives:
+
+@example
+    /var/log            S
+    /var/log/archive    s
+@end example
+
+Again, the upper case turns the check off, and the lower case turns it
+back on.
+
+@item list of switches
+
+The default checks are these: checksum; inode; permissions; number of
+links; uid; gid; mtime; and ctime.  You can overrule the defaults by
+specifying all switches for the root directory in the configuration
+file.
+
+Here's a table of letters and the corresponding checks/options:
+
+@cindex switch table
+@table @code
+@item s
+checksum
+@item i
+inode
+@item p
+permissions
+@item t
+file type
+@item d
+device type (if file is blk or chr special)
+@item l
+number of links
+@item u
+uid
+@item g
+gid
+@item z
+file size (redundant if checksums are on)
+@item a
+access time
+@item m
+modification time
+@item c
+time UN*X file information was changed
+
+@item r
+reset access time (option)
+@end table
+
+@end itemize
+
+@comment  node-name,  next,  previous,  up
+@node Human Readable Output, Exit Status, Configuration File, Top
+@chapter Human Readable Output
+@cindex human-readable output
+
+The human-readable format is intended for quick scanning on a viewer
+with a large number of columns (like an xterm with maximized width).
+
+Other popular file integrity verification systems split the information
+between a list of files that have changed at the top of the report and a
+more detailed section showing the nature of the changes at the bottom of
+the report.  Instead, integrit provides all the information for each
+file as it learns it.
+
+Besides saving on runtime memory usage, the big advantage of this
+approach is that the person reading the output never has to skip to the
+end of the report to learn the exact nature of a change.
+
+In this output format, messages from integrit have a specific prefix
+showing what kind of message it is:
+
+@cindex prefixes, output 
+@itemize @bullet
+@item ``integrit: ''
+integrit is telling you something
+@item ``changed: ''
+@cindex changed
+a file has changed somehow
+@item ``missing: ''
+@cindex missing
+a file in the known database is no longer around @footnote{You will
+only see missing files reported if you're running update and check at
+the same time.  Otherwise integrit won't know both necessary facts: the
+file existed in the past and isn't there now.}
+@item ``new: ''
+@cindex new
+a file not in the known database has appeared
+@end itemize
+
+The one-letter characters for options and checks
+(@pxref{Config Rule Checksets,,table of checkset codes}) is used in the
+human-readable output format for reporting corresponding changes.
+
+For example, the switch for checking permissions is @code{p}.  If
+integrit notes that the file permissions have changed, in the output you
+will see this kind of line:
+
+@example
+    changed: /etc/secret   p(640:666)
+@end example
+
+That means that the permissions (``p'') have changed from 640 to 666.
+In general, the syntax is as follows:
+
+@example
+    changed: filename   x(known:current)
+@end example
+
+@noindent
+@dots{} where @code{x} is the one-letter symbol showing what's changed
+(@pxref{Config Rule Checksets,,list of switches}), "known" is
+the value from the known database, and "current" is the state of the
+file that integrit observed at runtime.
+
+exception: 
+
+@itemize @bullet
+
+@item
+Symlinks have @code{sym} where the octal permissions (which would always
+be ``777'') would be.
+@end itemize
+
+You can skip the preamble in the human-readable report by lowering
+the verbosity level with the ``-q'' command-line option.
+
+@comment  node-name,  next,  previous,  up
+@node Exit Status, Auxiliary Tools, Human Readable Output, Top
+@chapter Exit Status
+@cindex exit status
+
+Since version three, integrit's exit status indicates whether or not it
+found changes.
+
+@table @code
+@item 0
+
+When integrit returns zero to the process that started integrit, it
+means that no changes were detected.  (Unless you are doing a check, no
+changes will be detected.)
+
+@item 1
+
+An exit status of one means that changes were detected but no errors
+were encountered.  (An error is a failure condition that prevents
+integrit from doing its job.)
+
+@item 2
+
+Two signifies that an error occured, and integrit was not able to do
+its job.  When @code{stop_on_err} is ``0'' and a check is performed,
+an exit status of two means that some errors were encountered during
+the scan, but no changes could be found.
+
+@item 3
+
+Both errors and changes were found.
+
+@end table
+
+@comment  node-name,  next,  previous,  up
+@node Auxiliary Tools, FAQ, Exit Status, Top
+@chapter Auxiliary Tools
+
+The integrit source distribution comes with two standalone tools.  You
+do not need to be familiar with these tools in order to use integrit,
+but I personally find them to be very convenient once in a while.
+
+The tools are @code{i-viewdb} and @code{i-ls}.  
+
+@menu
+* i-viewdb::             Looking inside of integrit databases.
+* i-ls::                 Viewing characteristics of live files.
+@end menu
+
+@include i-viewdb.texi
+@include i-ls.texi
+
+@include faq.texi
+
+@cindex web site
+@cindex mailing list
+@comment  node-name,  next,  previous,  up
+@node Resources, Copying, FAQ, Top
+
+@appendix Resources
+
+To get the latest integrit, check the integrit homepage:
+
+@example
+    @uref{http://integrit.sourceforge.net/}
+@end example
+
+There are many resources at integrit's project page on sourceforge,
+including mailing lists and a web-interface for the source in CVS.
+
+@example
+    @uref{http://sourceforge.net/projects/integrit}
+@end example
+
+@include copying.texi
+
+@comment  node-name,  next,  previous,  up
+@node Concept Index, , Copying, Top
+@unnumbered Concept Index
+
+@printindex cp
+
+@bye
