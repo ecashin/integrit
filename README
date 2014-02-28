@@ -7,6 +7,13 @@ To build integrit the following commands should usually suffice:
 
     ./configure && make
 
+If you are not using a distribution tarball but building from the
+sources in git, you will need to first generate configure and
+test/test:
+
+    autoconf
+    (cd test && m4 test.m4 > test)
+
 To build the auxiliary programs, use "make utils".
 
 If you have any trouble, please see the TROUBLESHOOTING section of
