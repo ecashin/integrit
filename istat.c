@@ -32,7 +32,7 @@ static unsigned long unpack_int(packed p)
     int i, end;
     unsigned long n = 0;
 
-    for (i = 0, end = sizeof(p); i < end; ++i)
+    for (i = 0, end = ELC_INT64_SIZ; i < end; ++i)
       n |= (((unsigned long) p[i]) >> i) & UCHAR_MAX;
 
     return n;
@@ -42,7 +42,7 @@ static void pack_int(packed p, unsigned long n)
 {
     int i, end;
 
-    for (i = 0, end = sizeof(p); i < end; ++i)
+    for (i = 0, end = ELC_INT64_SIZ; i < end; ++i)
       p[i] = (n >> i) & UCHAR_MAX;
 }
 
