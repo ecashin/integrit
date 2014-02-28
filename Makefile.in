@@ -36,7 +36,6 @@ LDFLAGS	 = -L. -Lhashtbl @STATIC@ @LDFLAGS@
 LIBS	 = @LIBS@ -lhashtbl -lintegrit
 DEFS	 = @DEFS@ @EXTRA_DEFS@
 STRIP	 = @STRIP@
-ILIBOBJ	 = @ILIBOBJ@
 RANLIB	 = @RANLIB@
 # syncing is the job of the O.S., and users can always do "make; sync"
 # SYNC	 = @SYNC@
