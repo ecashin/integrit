@@ -33,7 +33,7 @@ static unsigned long unpack_int(packed p)
     unsigned long n = 0;
 
     for (i = 0, end = ELC_INT64_SIZ; i < end; ++i)
-      n |= (((unsigned long) p[i]) >> i) & UCHAR_MAX;
+      n |= ((unsigned long) p[i]) << i*CHAR_BIT;
 
     return n;
 }
@@ -43,7 +43,7 @@ static void pack_int(packed p, unsigned long n)
     int i, end;
 
     for (i = 0, end = ELC_INT64_SIZ; i < end; ++i)
-      p[i] = (n >> i) & UCHAR_MAX;
+      p[i] = (n >> i*CHAR_BIT) & UCHAR_MAX;
 }
 
 void copy_sb_to_istat(istat_t *istat, struct stat *sb)
