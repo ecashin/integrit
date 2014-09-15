@@ -519,9 +519,17 @@ static void report_newfile(integrit_t *it, fileinfo *inf)
         if (! inf->did_sum)
           inf->did_sum	 = do_checksum(it, inf);
         if (inf->did_sum) {
-	  printf("new:     %s   ", path);
-	  show_checksum(stdout, inf->dbinf.sum, sizeof(inf->dbinf.sum));
-	  putc('\n', stdout);
+          if (it->output == OUTPUT_XML) {
+            char zerosum[DIGEST_LENGTH];
+            memset(zerosum, 0, sizeof(zerosum));
+            report_sumchange(it, path,
+                             (const unsigned char *)zerosum, sizeof(zerosum),
+                             inf->dbinf.sum, sizeof(inf->dbinf.sum));
+          } else {
+            printf("new:     %s   ", path);
+            show_checksum(stdout, inf->dbinf.sum, sizeof(inf->dbinf.sum));
+            putc('\n', stdout);
+          }
         }
       }
     }
