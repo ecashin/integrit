@@ -53,12 +53,19 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #endif
 
 static void print_missing_xml(FILE *out, integrit_t *it,
-			      const char *key, size_t klen)
+			      const char *key, size_t klen,
+                              const dbinfo *dbinf)
 {
-    XML_START_PRINT(out, "missing");
+    const struct stat *s = &dbinf->stat;
 
-    for (; klen--; ++key)
-      xml_putc(out, *key);
+    XML_MISSING_START_PRINT(out, key);
+
+    show_xml_long(stdout, "permissions", s->st_mode & PERM_MASK);
+    show_xml_long(stdout, "type", s->st_mode & S_IFMT);
+    show_xml_long(stdout, "uid", s->st_uid);
+    show_xml_long(stdout, "gid", s->st_gid);
+    show_xml_long(stdout, "size", s->st_size);
+    show_xml_long(stdout, "modification_time", s->st_mtime);
 
     XML_END_PRINT(out, "missing");
     putc('\n', out);
@@ -113,7 +120,7 @@ static void do_currdb_check(integrit_t *it, struct cdb *curr_cdb,
     else if (! ret) {
       it->exit_status |= INTEGRIT_EXIT_CHANGES;
       if (it->output == OUTPUT_XML)
-	print_missing_xml(stdout, it, key, klen);
+	print_missing_xml(stdout, it, key, klen, dbinf);
       else
 	print_missing_lines(stdout, it, key, klen, dbinf, vlen);
     }

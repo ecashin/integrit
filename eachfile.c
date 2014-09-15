@@ -457,13 +457,13 @@ static void report_differences(integrit_t *it, fileinfo *currinf)
     report_stat_differences(it, currinf, &old);
 }
 
-static void show_xml_long(FILE *out, const char *type, long val)
+void show_xml_long(FILE *out, const char *type, long val)
 {
     xml_start_print(out, type);
     fprintf(out, "%ld", val);
     xml_end_print(out, type);
 }
-static void show_xml_octal(FILE *out, const char *type, unsigned long val)
+void show_xml_octal(FILE *out, const char *type, unsigned long val)
 {
     xml_start_print(out, type);
     fprintf(out, "%lo", val);

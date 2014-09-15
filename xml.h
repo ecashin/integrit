@@ -34,5 +34,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
     xml_print(out, path);				\
     fprintf(out, "\">");				\
 } while (0)
+#define XML_MISSING_START_PRINT(out, path) do {         \
+    fprintf(out, "<missing file=\"");                   \
+    xml_print(out, path);                               \
+    fprintf(out, "\">");                                \
+} while (0)
 
 #endif
