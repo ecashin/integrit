@@ -63,7 +63,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifdef		ELC_FIND_LEAKS
 #include	"leakfind.h"
 #endif
-#define		ALGO_NAME	"SHA-1"
+#define		ALGO_NAME	"checksum"
 #define		ELC_TIMEBUFSIZ	16
 
 
