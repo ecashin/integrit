@@ -63,7 +63,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifdef		ELC_FIND_LEAKS
 #include	"leakfind.h"
 #endif
-#define		ALGO_NAME	"SHA-1"
+#define		ALGO_NAME	"checksum"
 #define		ELC_TIMEBUFSIZ	16
 
 
@@ -457,13 +457,13 @@ static void report_differences(integrit_t *it, fileinfo *currinf)
     report_stat_differences(it, currinf, &old);
 }
 
-static void show_xml_long(FILE *out, const char *type, long val)
+void show_xml_long(FILE *out, const char *type, long val)
 {
     xml_start_print(out, type);
     fprintf(out, "%ld", val);
     xml_end_print(out, type);
 }
-static void show_xml_octal(FILE *out, const char *type, unsigned long val)
+void show_xml_octal(FILE *out, const char *type, unsigned long val)
 {
     xml_start_print(out, type);
     fprintf(out, "%lo", val);
@@ -519,9 +519,17 @@ static void report_newfile(integrit_t *it, fileinfo *inf)
         if (! inf->did_sum)
           inf->did_sum	 = do_checksum(it, inf);
         if (inf->did_sum) {
-	  printf("new:     %s   ", path);
-	  show_checksum(stdout, inf->dbinf.sum, sizeof(inf->dbinf.sum));
-	  putc('\n', stdout);
+          if (it->output == OUTPUT_XML) {
+            char zerosum[DIGEST_LENGTH];
+            memset(zerosum, 0, sizeof(zerosum));
+            report_sumchange(it, path,
+                             (const unsigned char *)zerosum, sizeof(zerosum),
+                             inf->dbinf.sum, sizeof(inf->dbinf.sum));
+          } else {
+            printf("new:     %s   ", path);
+            show_checksum(stdout, inf->dbinf.sum, sizeof(inf->dbinf.sum));
+            putc('\n', stdout);
+          }
         }
       }
     }

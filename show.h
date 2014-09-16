@@ -26,6 +26,8 @@ void show_time(FILE *out, char T, time_t val);
 void show_checksum(FILE *out, const unsigned char *sum, size_t siz);
 void show_entry(int show_checksums,
 		const char *key, size_t klen, dbinfo *val, size_t vlen);
+void show_xml_long(FILE *out, const char *type, long val);
+void show_xml_octal(FILE *out, const char *type, unsigned long val);
 
 /* for showing the last twelve bits (four octal digits) */
 #define		PERM_MASK	(07777)

@@ -1,0 +1,86 @@
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" jaxb:version="1.0" xmlns:jaxb="http://java.sun.com/xml/ns/jaxb">
+
+<!-- Define schema for integrit XML output -->
+
+<xsd:element name="report" type="reportType"/>
+
+<xsd:complexType name="reportType">
+  <xsd:sequence>
+    <xsd:element name="options" minOccurs="1" maxOccurs="1" type="optionsType"/>
+    <xsd:choice minOccurs="0" maxOccurs="unbounded">
+      <xsd:element name="change" type="changeType"/>
+      <xsd:element name="missing" type="missingType"/>
+    </xsd:choice>
+    <xsd:element name="checksum" minOccurs="1" maxOccurs="1" type="checksumType"/>
+  </xsd:sequence>
+  <xsd:attribute name="date" type="xsd:string" use="required"/>
+  <xsd:attribute name="integrit_version" type="xsd:string" use="required"/>
+</xsd:complexType>
+
+<xsd:complexType name="optionsType">
+  <xsd:sequence>
+    <xsd:element name="output" type="xsd:string" minOccurs="1" maxOccurs="1"/>
+    <xsd:element name="conffile" type="xsd:string" minOccurs="1" maxOccurs="1"/>
+    <xsd:element name="knowndb" type="xsd:string" minOccurs="1" maxOccurs="1"/>
+    <xsd:element name="currentdb" type="xsd:string" minOccurs="1" maxOccurs="1"/>
+    <xsd:element name="root" type="xsd:string" minOccurs="1" maxOccurs="1"/>
+    <xsd:element name="check" type="xsd:string" minOccurs="1" maxOccurs="1"/>
+    <xsd:element name="update" type="xsd:string" minOccurs="1" maxOccurs="1"/>
+  </xsd:sequence>
+</xsd:complexType>
+
+<xsd:complexType name="changeType">
+  <xsd:sequence>
+    <xsd:element name="old" type="xsd:string" minOccurs="0" maxOccurs="1"/>
+    <xsd:element name="new" type="xsd:string" minOccurs="0" maxOccurs="1"/>
+    <xsd:element name="inode" type="oldNewType" minOccurs="0" maxOccurs="1"/>
+    <xsd:element name="permissions" type="oldNewType" minOccurs="0" maxOccurs="1"/>
+    <xsd:element name="type" type="oldNewType" minOccurs="0" maxOccurs="1"/>
+    <xsd:element name="devicetype" type="oldNewType" minOccurs="0" maxOccurs="1"/>
+    <xsd:element name="nlinks" type="oldNewType" minOccurs="0" maxOccurs="1"/>
+    <xsd:element name="uid" type="oldNewType" minOccurs="0" maxOccurs="1"/>
+    <xsd:element name="gid" type="oldNewType" minOccurs="0" maxOccurs="1"/>
+    <xsd:element name="size" type="oldNewType" minOccurs="0" maxOccurs="1"/>
+    <xsd:element name="access_time" type="oldNewType" minOccurs="0" maxOccurs="1"/>
+    <xsd:element name="modification_time" type="oldNewType" minOccurs="0" maxOccurs="1"/>
+    <xsd:element name="change_time" type="oldNewType" minOccurs="0" maxOccurs="1"/>
+  </xsd:sequence>
+  <xsd:attribute name="type" type="xsd:string" use="required">
+    <xsd:annotation>
+      <xsd:appinfo>
+        <jaxb:property name="changetype"/>
+      </xsd:appinfo>
+    </xsd:annotation>
+  </xsd:attribute>
+  <xsd:attribute name="file" type="xsd:string" use="required"/>
+</xsd:complexType>
+
+<xsd:complexType name="missingType">
+  <xsd:sequence>
+    <xsd:element name="permissions" type="oldNewType" minOccurs="0" maxOccurs="1"/>
+    <xsd:element name="type" type="oldNewType" minOccurs="0" maxOccurs="1"/>
+    <xsd:element name="uid" type="oldNewType" minOccurs="0" maxOccurs="1"/>
+    <xsd:element name="gid" type="oldNewType" minOccurs="0" maxOccurs="1"/>
+    <xsd:element name="size" type="oldNewType" minOccurs="0" maxOccurs="1"/>
+    <xsd:element name="modification_time" type="oldNewType" minOccurs="0" maxOccurs="1"/>
+  </xsd:sequence>
+  <xsd:attribute name="file" type="xsd:string" use="required"/>
+</xsd:complexType>
+
+<xsd:complexType name="oldNewType" mixed="true">
+  <xsd:sequence>
+    <xsd:element name="old" type="xsd:string" minOccurs="0" maxOccurs="1"/>
+    <xsd:element name="new" type="xsd:string" minOccurs="0" maxOccurs="1"/>
+  </xsd:sequence>
+</xsd:complexType>
+
+<xsd:complexType name="checksumType">
+  <xsd:simpleContent>
+    <xsd:extension base="xsd:string">
+      <xsd:attribute name="type" type="xsd:string" use="required"/>
+      <xsd:attribute name="file" type="xsd:string" use="required"/>
+    </xsd:extension>
+  </xsd:simpleContent>
+</xsd:complexType>
+
+</xsd:schema>
