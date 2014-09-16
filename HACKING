@@ -1,18 +1,30 @@
-integrit is in a near-perpetual feature freeze in order to avoid
-creeping featurism.  The mailing lists are appropriate forums for
-discussions of features.
+For years, integrit was in a near-perpetual feature freeze in order to
+avoid creeping featurism.  However, the lack of a project "heartbeat"
+was sometimes mistaken as death, and now little fixes are most
+welcome.
+
+The mailing lists are appropriate forums for discussions of features
+and fixes.
 
 Recommendations for patches:
 
-  Patches for portability are welcome.  Please make patches against the
-  latest version of integrit.  See the following page for information on
-  how to use CVS to get it:
+  Patches for portability and correctness are especially welcome.
+  Please make patches against the latest version of integrit.
+
+  The very latest is the master branch on github at the URL below, and
+  pull requests directed to this repo are the best way to submit
+  changes:
+
+    https://github.com/ecashin/integrit
+
+  But patches against the latest stable release on sourceforge.net are
+  fine.
   
-    http://sourceforge.net/cvs/?group_id=15369
-  
-  Patches should be context diffs or unified diffs.  Only substantive
-  changes should be in the patches.  (e.g., reformatting the whitespace
-  is not a substantive change and will make a patch unreadable.)
+  Stand-alone patches should be context diffs or (better) unified
+  diffs.  Only substantive changes should be in the patches.  (e.g.,
+  reformatting the whitespace is not a substantive change and will
+  make a patch unreadable.)  Please use one patch for each logical
+  change.
   
   There is no guarantee that submitted patches will be accepted.  Some
   of the patches that have been submitted so far have been directly
