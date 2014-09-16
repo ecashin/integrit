@@ -22,22 +22,22 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #define	XML_START(tag)	("<" tag ">")
 #define	XML_END(tag)	("</" tag ">")
-#define	XML_START_PRINT(out, tag)	(fprintf(out, XML_START(tag)))
-#define	XML_END_PRINT(out, tag)	(fprintf(out, XML_END(tag)))
+#define	XML_START_PRINT(out, tag)	(fputs(XML_START(tag), (out)))
+#define	XML_END_PRINT(out, tag)	(fputs(XML_END(tag), (out)))
 #define	XML_ELEMENT_PRINT(out, tag, content) do {	\
     fputs("<" tag ">", (out));				\
     xml_print((out), (content));			\
     fputs("</" tag ">\n", (out));			\
 } while (0);
 #define	XML_CHANGE_START_PRINT(out, type, path) do {	\
-    fprintf(out, "<change type=\"%s\" file=\"", type);	\
+    fprintf((out), "<change type=\"%s\" file=\"", type);	\
     xml_print(out, path);				\
-    fprintf(out, "\">");				\
+    fputs("\">", (out));				\
 } while (0)
 #define XML_MISSING_START_PRINT(out, path) do {         \
-    fprintf(out, "<missing file=\"");                   \
+    fputs("<missing file=\"", (out));			\
     xml_print(out, path);                               \
-    fprintf(out, "\">");                                \
+    fputs("\">", (out));				\
 } while (0)
 
 #endif
