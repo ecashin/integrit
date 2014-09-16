@@ -12,7 +12,7 @@ sources in git, you will need to first generate configure and
 test/test:
 
     autoconf
-    (cd test && m4 test.m4 > test)
+    (cd test && m4 test.m4 > test && chmod 755 test)
 
 To build the auxiliary programs, use "make utils".
 
